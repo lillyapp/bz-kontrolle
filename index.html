@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KW Level Anzeige</title>
+  <style>
+    :root {
+      --padding-x: 5px;
+      --text-size: clamp(64px, 15vw, 220px);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: #ffffff;
+      color: #111111;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .kw {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-size);
+      font-weight: 700;
+      line-height: 1;
+      text-align: center;
+    }
+
+    .divider {
+      border: 0;
+      border-top: 2px solid #111111;
+      margin: 0 var(--padding-x);
+    }
+
+    .level {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-size);
+      font-weight: 700;
+      line-height: 1;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div id="kw" class="kw" aria-live="polite"></div>
+  <hr class="divider" />
+  <div id="level" class="level" aria-live="polite"></div>
+
+  <script>
+    function getIsoWeek(date) {
+      const utcDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+      const day = utcDate.getUTCDay() || 7;
+      utcDate.setUTCDate(utcDate.getUTCDate() + 4 - day);
+      const yearStart = new Date(Date.UTC(utcDate.getUTCFullYear(), 0, 1));
+      return Math.ceil((((utcDate - yearStart) / 86400000) + 1) / 7);
+    }
+
+    const now = new Date();
+    const week = getIsoWeek(now);
+    const level = week % 2 === 0 ? 'LEVEL 3' : 'LEVEL 4';
+
+    document.getElementById('kw').textContent = `KW ${week}`;
+    document.getElementById('level').textContent = level;
+  </script>
+</body>
+</html>
