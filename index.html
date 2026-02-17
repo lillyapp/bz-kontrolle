@@ -6,8 +6,12 @@
   <title>KW Level Anzeige</title>
   <style>
     :root {
-      --padding-x: 5px;
-      --text-size: clamp(64px, 15vw, 220px);
+      --padding-x: 20px;
+      --display-size: clamp(48px, 18vw, 300px);
+      --icon-size: clamp(48px, 10vw, 160px);
+      --kw-icon-size: clamp(72px, 14vw, 210px);
+      --icon-gap: 15px;
+      --content-shift: -18px;
     }
 
     * {
@@ -24,15 +28,52 @@
       flex-direction: column;
     }
 
-    .kw {
+    .kw,
+    .level {
       flex: 1;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: var(--text-size);
       font-weight: 700;
       line-height: 1;
       text-align: center;
+      transform: translateY(var(--content-shift));
+    }
+
+    .kw {
+      font-size: var(--display-size);
+    }
+
+    .level {
+      font-size: var(--display-size);
+    }
+
+    .label-row {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--icon-gap);
+    }
+
+    .label-row span {
+      white-space: nowrap;
+    }
+
+    .label-row svg {
+      width: var(--icon-size);
+      height: var(--icon-size);
+      stroke-width: 2.2;
+      flex-shrink: 0;
+    }
+
+    .kw .label-row svg {
+      width: var(--kw-icon-size);
+      height: var(--kw-icon-size);
+    }
+
+    .level .label-row svg {
+      width: var(--kw-icon-size);
+      height: var(--kw-icon-size);
     }
 
     .divider {
@@ -40,24 +81,25 @@
       border-top: 2px solid #111111;
       margin: 0 var(--padding-x);
     }
-
-    .level {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: var(--text-size);
-      font-weight: 700;
-      line-height: 1;
-      text-align: center;
-    }
   </style>
 </head>
 <body>
-  <div id="kw" class="kw" aria-live="polite"></div>
-  <hr class="divider" />
-  <div id="level" class="level" aria-live="polite"></div>
+  <div class="kw" aria-live="polite">
+    <div class="label-row">
+      <i data-lucide="calendar-1" aria-hidden="true"></i>
+      <span id="kw"></span>
+    </div>
+  </div>
 
+  <hr class="divider" />
+
+  <div id="level" class="level" aria-live="polite">
+    <div class="label-row">
+      <span id="level-text"></span>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
   <script>
     function getIsoWeek(date) {
       const utcDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
@@ -70,9 +112,13 @@
     const now = new Date();
     const week = getIsoWeek(now);
     const level = week % 2 === 0 ? 'LEVEL 3' : 'LEVEL 4';
+    const levelColor = week % 2 === 0 ? '#d50000' : '#0a8f08';
 
     document.getElementById('kw').textContent = `KW ${week}`;
-    document.getElementById('level').textContent = level;
+    document.getElementById('level-text').textContent = level;
+    document.getElementById('level-text').style.color = levelColor;
+
+    lucide.createIcons();
   </script>
 </body>
 </html>
