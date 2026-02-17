@@ -12,6 +12,13 @@
       --kw-icon-size: clamp(72px, 14vw, 210px);
       --icon-gap: 15px;
       --content-shift: -18px;
+      --info-side-offset: 14px;
+      --info-button-size: 22px;
+      --info-popup-gap: 16px;
+      --info-popup-right: calc(var(--info-side-offset) + var(--info-button-size) + var(--info-popup-gap));
+      --bg: #ffffff;
+      --fg: #111111;
+      --popup-bg: #d3d3d3;
     }
 
     * {
@@ -22,10 +29,58 @@
       margin: 0;
       min-height: 100vh;
       font-family: Arial, sans-serif;
-      background: #ffffff;
-      color: #111111;
+      background: var(--bg);
+      color: var(--fg);
       display: flex;
       flex-direction: column;
+    }
+
+    .info-button {
+      position: fixed;
+      top: var(--info-side-offset);
+      right: var(--info-side-offset);
+      width: var(--info-button-size);
+      height: var(--info-button-size);
+      border: 0;
+      background: transparent;
+      color: var(--fg);
+      cursor: pointer;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+
+    .info-button svg {
+      width: var(--info-button-size);
+      height: var(--info-button-size);
+      stroke-width: 2.4;
+    }
+
+    .info-popup {
+      position: fixed;
+      top: var(--info-side-offset);
+      right: var(--info-popup-right);
+      max-width: min(420px, calc(100vw - var(--padding-x) - var(--info-popup-right)));
+      padding: 14px 16px;
+      border-radius: 10px;
+      background: var(--popup-bg);
+      color: var(--fg);
+      font-size: 16px;
+      line-height: 1.35;
+      z-index: 19;
+      display: none;
+      transform-origin: top right;
+    }
+
+    .info-popup-title {
+      font-weight: 700;
+      margin: 0 0 8px 0;
+    }
+
+    .info-popup-text {
+      margin: 0;
     }
 
     .kw,
@@ -78,12 +133,28 @@
 
     .divider {
       border: 0;
-      border-top: 2px solid #111111;
+      border-top: 2px solid var(--fg);
       margin: 0 var(--padding-x);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f1115;
+        --fg: #f3f4f6;
+        --popup-bg: #2f343b;
+      }
     }
   </style>
 </head>
 <body>
+  <button id="info-button" class="info-button" type="button" aria-label="Info anzeigen">
+    <i data-lucide="info" aria-hidden="true"></i>
+  </button>
+  <div id="info-popup" class="info-popup" role="dialog" aria-live="polite">
+    <p class="info-popup-title">Disclaimer</p>
+    <p class="info-popup-text">Angaben ohne Gewähr. Es ist nach den Regularien des Herstellers zu handeln.</p>
+  </div>
+
   <div class="kw" aria-live="polite">
     <div class="label-row">
       <i data-lucide="calendar-1" aria-hidden="true"></i>
@@ -100,6 +171,7 @@
   </div>
 
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
   <script>
     function getIsoWeek(date) {
       const utcDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
@@ -117,6 +189,37 @@
     document.getElementById('kw').textContent = `KW ${week}`;
     document.getElementById('level-text').textContent = level;
     document.getElementById('level-text').style.color = levelColor;
+
+    const infoButton = document.getElementById('info-button');
+    const infoPopup = document.getElementById('info-popup');
+    let infoOpen = false;
+
+    infoButton.addEventListener('click', function () {
+      if (!infoOpen) {
+        infoPopup.style.display = 'block';
+        gsap.fromTo(
+          infoPopup,
+          { opacity: 0, scale: 0.85, y: -10 },
+          { opacity: 1, scale: 1, y: 0, duration: 0.28, ease: 'back.out(1.7)' }
+        );
+        infoOpen = true;
+        return;
+      }
+
+      gsap.to(infoPopup, {
+        opacity: 0,
+        scale: 0.9,
+        y: -8,
+        duration: 0.2,
+        ease: 'power2.in',
+        onComplete: function () {
+          infoPopup.style.display = 'none';
+          infoPopup.style.opacity = '';
+          infoPopup.style.transform = '';
+        }
+      });
+      infoOpen = false;
+    });
 
     lucide.createIcons();
   </script>
